@@ -1,6 +1,5 @@
-from openpyxl.styles import Border, Side, PatternFill
-from openpyxl.worksheet import dimensions
 from copy import deepcopy
+from openpyxl.styles import Border, Side, PatternFill
 
 
 class VisualGridMaker(object):

@@ -1,6 +1,5 @@
-from openpyxl.styles import Border, Side, PatternFill, alignment
 from copy import deepcopy
-from openpyxl.worksheet import dimensions
+from openpyxl.styles import Border, Side, PatternFill, alignment
 
 
 class VisualGridMaker(object):
@@ -25,18 +24,13 @@ class VisualGridMaker(object):
             self.ws.column_dimensions[col_name].width = 3
 
     def write_to_excel_n_shift(self, grid, grid_start_offset=0):
-        """ Writing to excel and adding a column at start
-
-        :param grid:
-        :return:
-        """
 
         sheet_row = 0
 
         if grid_start_offset == 0:
             grid_start_offset = self.info['win_lines'] - len(grid)
         else:
-            grid_start_offset = self.info['win_lines'] - grid_start_offset
+            grid_start_offset = grid_start_offset - len(grid)
 
         for _index, _grid in enumerate(grid):
             sheet_row += 2
@@ -159,11 +153,10 @@ class VisualGridMaker(object):
         # applying the border to the grid
         self.apply_border(grid3_for_excel)
         # writing the grid to worksheet
-        grid_no = 0
-        grid_no += self.write_to_excel_n_shift(grid3_for_excel, grid_no)
+        grid_no = self.write_to_excel_n_shift(grid3_for_excel)
 
         self.apply_border(grid2_for_excel)
-        grid_no += self.write_to_excel_n_shift(grid2_for_excel, grid_no)
+        grid_no = self.write_to_excel_n_shift(grid2_for_excel, grid_no)
 
         self.apply_border(grid1_for_excel)
         self.write_to_excel_n_shift(grid1_for_excel, grid_no)

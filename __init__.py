@@ -1,1 +1,1 @@
-from . import visualGrid
+from visualGrid.visualGridv2 import VisualGridMaker
