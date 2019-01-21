@@ -1,10 +1,10 @@
 from openpyxl import Workbook
-from visualGrid import VisualGridMaker
+from task_4.visualGrid import VisualGridMaker
 
 info = {
     'num_reels': 5,
     'view_size': 3,
-    'win_lines': 27,
+    'win_lines': 25,
     'symbol_pos': [[0, 1, 2, 3, 4],
                    [5, 6, 7, 8, 9],
                    [10, 11, 12, 13, 14]]
@@ -36,8 +36,7 @@ win_lines = [
     [2, 2, 1, 0, 0],  # 23
     [1, 0, 2, 0, 1],  # 24
     [1, 2, 0, 2, 1],  # 25
-    [1, 2, 0, 2, 1],  # 25
-    [1, 2, 0, 2, 1],  # 25
+
 ]
 
 if __name__ == "__main__":

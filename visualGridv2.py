@@ -18,7 +18,7 @@ class VisualGridMaker(object):
         self.grid_division = 3
 
     def setting_column_width(self):
-        # setting the width of the columns, usually min is 1 and max is reel length
+        # setting the width of the columns, usually min is 1 and max is 5 * reel length
         for col in self.ws.iter_cols(min_col=6, max_col=25):
             col_name = col[0].column
             self.ws.column_dimensions[col_name].width = 3
@@ -27,6 +27,7 @@ class VisualGridMaker(object):
 
         sheet_row = 0
 
+        # setting the offsets of line number to be written over grid
         if grid_start_offset == 0:
             grid_start_offset = self.info['win_lines'] - len(grid)
         else:
@@ -35,18 +36,22 @@ class VisualGridMaker(object):
         for _index, _grid in enumerate(grid):
             sheet_row += 2
 
-            # merging the grid no cell
+            # todo: merging the line no cells
             # self.ws.merge_cells("{}:{}".format(self.ws.cell(row=sheet_row, column=1).coordinate,
             #                                    self.ws.cell(row=sheet_row, column=5).coordinate))
 
+            # incrementing the line number to be written
             grid_no = grid_start_offset + _index + 1
 
             self.ws.cell(row=sheet_row, column=1).value = "Line_" + str(grid_no)
-            self.ws.cell(row=sheet_row, column=1).alignment = alignment.Alignment('center')
+            self.ws.cell(row=sheet_row, column=1).alignment = alignment.Alignment('left')
+
+            # writing to a particular cell
             for row, _line in enumerate(_grid):
                 sheet_row += 1
                 for col, reel_cell in enumerate(_line):
                     self.ws.cell(row=sheet_row, column=col + 1).value = reel_cell
+                    self.ws.cell(row=sheet_row, column=col + 1).alignment = alignment.Alignment('center')
 
         # inserting columns
         self.ws.insert_cols(idx=1, amount=self.info['num_reels'] + 1)
@@ -59,8 +64,11 @@ class VisualGridMaker(object):
         side_thick = Side(border_style='thick', color="FF000000")
         side_thin = Side(border_style='thin', color="FF000000")
 
-        rows = list(rows)  # we convert iterator to list for simplicity, but it's not memory efficient solution
-        max_y = len(rows) - 1  # index of the last row
+        # we convert iterator to list for simplicity, but it's not memory efficient solution
+        rows = list(rows)
+
+        # index of the last row
+        max_y = len(rows) - 1
         for pos_y, cells in enumerate(rows):
             max_x = len(cells) - 1  # index of the last cell
             for pos_x, cell in enumerate(cells):
@@ -86,7 +94,6 @@ class VisualGridMaker(object):
                     border.bottom = side_thick
 
                 # set new border only if it's one of the edge cells
-                # if pos_x == 0 or pos_x == max_x or pos_y == 0 or pos_y == max_y:
                 cell.border = border
 
     def apply_border(self, grid):
@@ -100,7 +107,6 @@ class VisualGridMaker(object):
 
             shift += self.xcel_info['shift']
 
-            # print(cell_start.coordinate, cell_end.coordinate)
             self.set_border(self.ws, "{}:{}".format(cell_start.coordinate, cell_end.coordinate))
 
     def grid_maker(self):
@@ -115,57 +121,52 @@ class VisualGridMaker(object):
                 _line.append("\t")
             sample.append(_line)
 
-        # print(sample)
-
         # making the required grid from sample list
-        grids_for_xcel = []
+        grids_for_excel = []
         for _line in self.win_lines:
             copy_sample = deepcopy(sample)
             for _col, _row in enumerate(_line):
                 copy_sample[_row][_col] = 'X'
-            grids_for_xcel.append(copy_sample)
+            grids_for_excel.append(copy_sample)
 
-        # print(grids_for_xcel)
-        division = len(grids_for_xcel) // self.grid_division
-        remainder = len(grids_for_xcel) % self.grid_division
+        # dividing the grid_for_excel into different lists
+        division = len(grids_for_excel) // self.grid_division
+        remainder = len(grids_for_excel) % self.grid_division
 
         if remainder == 1:
             # adding 1 extra grid to list 1
-            grid1_for_excel = grids_for_xcel[:division + 1]
-            grid2_for_excel = grids_for_xcel[division + 1: (2 * division) + 1]
-            grid3_for_excel = grids_for_xcel[(2 * division) + 1:]
-
+            grid1_for_excel = grids_for_excel[:division + 1]
+            grid2_for_excel = grids_for_excel[division + 1: (2 * division) + 1]
+            grid3_for_excel = grids_for_excel[(2 * division) + 1:]
         elif remainder == 2:
             # add 1 extra grid to both list 1 and list 2
-            grid1_for_excel = grids_for_xcel[:division + 1]
-            grid2_for_excel = grids_for_xcel[division + 1: (2 * division) + 2]
-            grid3_for_excel = grids_for_xcel[(2 * division) + 2:]
+            grid1_for_excel = grids_for_excel[:division + 1]
+            grid2_for_excel = grids_for_excel[division + 1: (2 * division) + 2]
+            grid3_for_excel = grids_for_excel[(2 * division) + 2:]
         else:
             # nothing to add in any list
-            grid1_for_excel = grids_for_xcel[:division]
-            grid2_for_excel = grids_for_xcel[division:2 * division]
-            grid3_for_excel = grids_for_xcel[2 * division:]
+            grid1_for_excel = grids_for_excel[:division]
+            grid2_for_excel = grids_for_excel[division:2 * division]
+            grid3_for_excel = grids_for_excel[2 * division:]
 
-        # print(grid1_for_excel)
-        # print(grid2_for_excel)
-        # print(grid3_for_excel)
-
-        # applying the border to the grid
+        # applying the border to the grid and writing the grid to worksheet
+        # we start backwards from list 3
         self.apply_border(grid3_for_excel)
-        # writing the grid to worksheet
         grid_no = self.write_to_excel_n_shift(grid3_for_excel)
 
+        # for list 2
         self.apply_border(grid2_for_excel)
         grid_no = self.write_to_excel_n_shift(grid2_for_excel, grid_no)
 
+        # for list 1
         self.apply_border(grid1_for_excel)
         self.write_to_excel_n_shift(grid1_for_excel, grid_no)
 
+        # setting the width of target columns
         self.setting_column_width()
 
         # applying the fill for every X it finds
         for row in self.ws.iter_rows():
-            # print(row[0])
             for cell in row:
                 if cell.value == "X":
                     # apply color fill
