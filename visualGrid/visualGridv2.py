@@ -1,6 +1,6 @@
 from copy import deepcopy
 from openpyxl.styles import Border, Side, PatternFill, alignment
-
+from openpyxl.utils import get_column_letter
 
 class VisualGridMaker(object):
 
@@ -20,7 +20,7 @@ class VisualGridMaker(object):
     def setting_column_width(self):
         # setting the width of the columns, usually min is 1 and max is 5 * reel length
         for col in self.ws.iter_cols(min_col=6, max_col=25):
-            col_name = col[0].column
+            col_name = get_column_letter(col[0].column)
             self.ws.column_dimensions[col_name].width = 3
 
     def write_to_excel_n_shift(self, grid, grid_start_offset=0):

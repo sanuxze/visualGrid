@@ -1,5 +1,5 @@
 from openpyxl import Workbook
-from task_4.visualGrid import VisualGridMaker
+from visualGrid.visualGridv2 import VisualGridMaker
 
 info = {
     'num_reels': 5,

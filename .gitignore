@@ -1,1 +1,8 @@
-*.pyc
+# Build and Cache Folders
+*.egg-info/
+__pycache__/
+.vscode/
+venv/
+
+# Other files and folders
+*.pyc/
